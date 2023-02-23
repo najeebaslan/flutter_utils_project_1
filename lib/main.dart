@@ -1,13 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_utils_project/flutter_utils_project.dart';
-import 'package:http/http.dart' as http;
-
-import 'model/posts.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -17,111 +11,147 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Get data from api',
+      title: 'Flutter Utils Project',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-  Future<List<Posts>> getData() async {
-    try {
-      const String uri = 'https://jsonplaceholder.typicode.com/photos';
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
-      final response = await http.get(Uri.parse(uri));
-      if (response.statusCode == 200) {
-        List post = jsonDecode(response.body);
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
-        final result = post.map((json) => Posts.fromJson(json)).toList();
-
-        return result;
-      } else {
-        throw Exception('Failed to load data from api');
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
+class _MyHomePageState extends State<MyHomePage> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+  final String _key = 'username';
+  String text = 'no value';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('get data form api'),
-        centerTitle: true,
-      ),
-      body: SnapHelperWidget(
-          future: getData(),
-          loadingWidget: const Center(child: Text('waiting data')),
-          onSuccess: (List<Posts> onSuccess) => shaowData(onSuccess)),
-      // FutureBuilder(
-      //   future: getData(),
-      //   builder: (context, snapshot) {
-      //     //Error
-      //     if (snapshot.hasError) return Text(snapshot.error.toString());
-      //     //Success
-      //     if (snapshot.hasData) {
-      //       return shaowData(snapshot.data!);
-      //     } else {
-      //       //Loading
-      //       return const Center(child: CircularProgressIndicator());
-      //     }
-      //   },
-      // ),
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 50),
+          child: Column(children: [
+            Text(
+              text,
+              style: const TextStyle(color: Colors.red, fontSize: 22),
+            ),
+            10.height,
+            buildTextField(),
+            60.height,
+            //! Set Value
+            customBotton(
+                onPressed: () async {
+                  await FuSharedPreferences.setString(_key, _controller.text);
+                },
+                text: 'Set value'),
+            //! Get Value
+            customBotton(
+                onPressed: () async {
+                  String? value = await FuSharedPreferences.getString(
+                    _key,
+                  );
+                  setState(() => text = value ?? 'no value');
+                },
+                text: 'Get value'),
+            //! Delete Value
+            customBotton(
+                onPressed: () async {
+                  await FuSharedPreferences.deleteString(
+                    _key,
+                  );
+                },
+                text: 'Delete value'),
+          ])),
     );
   }
-}
 
-Widget shaowData(List<Posts> data) {
-  return ListView.builder(
-    itemCount: data.length,
-    itemBuilder: (context, index) {
-      Posts myData = data[index];
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.primaries[index % Colors.primaries.length]
-              .withOpacity(0.7),
-        ),
-        child: Row(children: [
-          ClipOval(
-            child: Image.network(
-              myData.thumbnailUrl,
-              height: 80,
-              width: 80,
-            ),
-          ),
+  Widget buildTextField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _controller,
+            validator: (String? value) {
+              return FuInputValidation.validationTextField(
+                  controller: _controller,
+                  error: 'Please add value',
+                  lengthMin:
+                      'The field must be at least three characters long.',
+                  lengthMax:
+                      'The field should not be more than eight letters long.',
+                  main: 3,
+                  max: 8);
+            },
+            decoration: InputDecoration(
+                contentPadding: FuSpacing.all(16.0),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.black, width: 1.0),
+                ),
+                errorBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.red, width: 1.0),
+                ),
+                labelText: "Add Value",
+                labelStyle: const TextStyle(fontSize: 22)),
+          )),
+    );
+  }
+
+  Widget customBotton(
+      {required void Function() onPressed, required String text}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      child: Row(
+        children: [
           Expanded(
-            child: Text(
-              myData.title,
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
+              child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
             ),
-          ),
+            child: ElevatedButton(
+              onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF434CF4),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30))),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          )),
+        ],
+      ),
+    );
 
-        //
-//flutter_utils_project_1
-          CircleAvatar(
-            radius: 15,
-            child: Text(
-              myData.id.toString(),
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
-        ]),
-      );
-    },
-  );
+    // FuButton.rounded(
+    //     block: true,
+    //     borderRadiusAll: 30,
+    //     padding: const EdgeInsets.all(15),
+    //     onPressed: onPressed,
+    //     backgroundColor: const Color(0xFF434CF4),
+    //     child: FuText.button(
+    //       fontSize: 20,
+    //       text,
+    //       color: Colors.white,
+    //     )).paddingSymmetric(horizontal: 20, vertical: 10);
+  }
 }
