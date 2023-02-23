@@ -1,13 +1,9 @@
-import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_utils_project/flutter_utils_project.dart';
-import 'package:http/http.dart' as http;
-
-import 'model/posts.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -17,111 +13,71 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Get data from api',
+      title: 'Flutter Extensions',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(),
+      home: const WidgetEx(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-  Future<List<Posts>> getData() async {
-    try {
-      const String uri = 'https://jsonplaceholder.typicode.com/photos';
-
-      final response = await http.get(Uri.parse(uri));
-      if (response.statusCode == 200) {
-        List post = jsonDecode(response.body);
-
-        final result = post.map((json) => Posts.fromJson(json)).toList();
-
-        return result;
-      } else {
-        throw Exception('Failed to load data from api');
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
+class WidgetEx extends StatelessWidget {
+  const WidgetEx({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('get data form api'),
-        centerTitle: true,
-      ),
-      body: SnapHelperWidget(
-          future: getData(),
-          loadingWidget: const Center(child: Text('waiting data')),
-          onSuccess: (List<Posts> onSuccess) => shaowData(onSuccess)),
-      // FutureBuilder(
-      //   future: getData(),
-      //   builder: (context, snapshot) {
-      //     //Error
-      //     if (snapshot.hasError) return Text(snapshot.error.toString());
-      //     //Success
-      //     if (snapshot.hasData) {
-      //       return shaowData(snapshot.data!);
-      //     } else {
-      //       //Loading
-      //       return const Center(child: CircularProgressIndicator());
-      //     }
-      //   },
-      // ),
-    );
-  }
-}
-
-Widget shaowData(List<Posts> data) {
-  return ListView.builder(
-    itemCount: data.length,
-    itemBuilder: (context, index) {
-      Posts myData = data[index];
-      return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.primaries[index % Colors.primaries.length]
-              .withOpacity(0.7),
+        appBar: AppBar(
+          title: const Text('Widget Extension'),
         ),
-        child: Row(children: [
-          ClipOval(
-            child: Image.network(
-              myData.thumbnailUrl,
-              height: 80,
-              width: 80,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              myData.title,
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
+        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          //? ============== Widget Extension ==================//
 
-        //
-//flutter_utils_project_1
-          CircleAvatar(
-            radius: 15,
-            child: Text(
-              myData.id.toString(),
-              style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700),
+          //! 1- onTap
+          const Card(
+            color: Colors.blue,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('test onTap widget'),
             ),
-          ),
-        ]),
-      );
-    },
-  );
+          ).onTap(() {
+            log('user pressed');
+          }),
+
+          //! 2- center
+          const Text(
+            'test center widget',
+            style: TextStyle(fontSize: 22),
+          ).center(),
+
+          //! 3- expand
+          Container(
+                  color: Colors.red,
+                  height: 200,
+                  width: 500,
+                  child: const FlutterLogo())
+              .expand(),
+
+          //! 4-  paddingAll -paddingOny paddingleft -paddingRight -paddingTop -paddingBottm
+          ElevatedButton(
+            child: const Text('test Padding widget'),
+            onPressed: () {},
+          )
+          .paddingTop(50),
+
+          //! 5- SizedBox height - width
+          ElevatedButton(
+            child: const Text('test sizedBox widget'),
+            onPressed: () {},
+          ).withHeight(200),
+
+          // //! 6- visible
+          ElevatedButton(
+            child: const Text('test visible widget'),
+            onPressed: () {},
+          ).visible(  true, ).center()
+        ]));
+  }
 }
