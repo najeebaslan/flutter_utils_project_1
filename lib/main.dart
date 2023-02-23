@@ -13,99 +13,97 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Extensions',
-      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const StringEx(),
+      home: const MyHomePage(),
     );
   }
 }
 
-class StringEx extends StatelessWidget {
-  const StringEx({super.key});
-  static String? text;
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
 
-  static String email = 'najeebaslan@gmail.com';
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('String Extension'),
-      ),
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          //? ==============String Extension==================//
-
-          //! 1- validateEmail
-          ElevatedButton(
-              onPressed: () {
-                if (email.validateEmail()) {
-                  snackBar(' email is valid', context);
-                } else {
-                  snackBar(' email is not valid', context);
-                }
-              },
-              child: const Text('validateEmail')),
-
-          //! 2- validate
-          Text(
-            text.validate(),
-            style: _style,
-          ),
-
-          //! 3- isImage  - isAudio - isTxt  -isApk
-          ElevatedButton(
-              onPressed: () {
-                if ('image.jpg'.isImage) {
-                  snackBar(' isImage is valid', context);
-                } else {
-                  snackBar(' isImage is not valid', context);
-                }
-              },
-              child: const Text('isImage')),
-
-          //! 4- capitalizeFirstLetter
-          Text(
-            'capitalize First Letter'.capitalizeFirstLetter(),
-            style: _style,
-          ),
-
-          //! 5-  replaceFarsiNumber
-          Text(
-            ''.replaceFarsiNumber('12345678'),
-            style: _style,
-          ),
-
-          //! 6- formatNumberWithComma
-          Text(
-            '1234567891101112'.formatNumberWithComma(),
-            style: _style,
-          ),
-
-          //! 7- removeAllWhiteSpace
-          Text(
-            'remove All White Space'.removeAllWhiteSpace(),
-            style: _style,
-          ),
-
-          //! 8- countWords
-          Text(
-            'Count Words is ${'count Words '.countWords()}',
-            style: _style,
-          ),
-        ]),
-      ),
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 50),
+          child: Column(children: [
+            10.height,
+            buildTextField(),
+            60.height,
+            //! Set Value
+            customBotton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    log('message');
+                  }
+                },
+                text: 'validate'),
+          ])),
     );
   }
 
-  final TextStyle _style = const TextStyle(fontSize: 22, height: 1.5);
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> snackBar(
-      String message, BuildContext context) {
-    return ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+  Widget buildTextField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _controller,
+            validator: (String? value) {
+              return FuInputValidation.validationTextField(
+                  controller: _controller,
+                  error: 'Please add value',
+                  lengthMin:
+                      'The field must be at least three characters long.',
+                  lengthMax:
+                      'The field should not be more than eight letters long.',
+                  main: 3,
+                  max: 8);
+            },
+            decoration: InputDecoration(
+                contentPadding: FuSpacing.all(16.0),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.black, width: 1.0),
+                ),
+                errorBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  borderSide: BorderSide(color: Colors.red, width: 1.0),
+                ),
+                labelText: "Add Value",
+                labelStyle: const TextStyle(fontSize: 22)),
+          )),
+    );
+  }
+
+  Widget customBotton(
+      {required void Function() onPressed, required String text}) {
+    return FuButton.rounded(
+        block: true,
+        borderRadiusAll: 30,
+        padding: const EdgeInsets.all(15),
+        onPressed: onPressed,
+        backgroundColor: const Color(0xFF434CF4),
+        child: FuText.button(
+          fontSize: 20,
+          text,
+          color: Colors.white,
+        )).paddingSymmetric(horizontal: 20, vertical: 10);
   }
 }
