@@ -18,68 +18,66 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ContextExtension(),
+      home: const WidgetEx(),
     );
   }
 }
 
-class ContextExtension extends StatelessWidget {
-  const ContextExtension({super.key});
+class WidgetEx extends StatelessWidget {
+  const WidgetEx({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Context Extensions'),
-      ),
-      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        //? ============== Context Extensions ==================//
-
-        //! 1- height - width
-        Container(
-          color: Colors.amberAccent,
-          height: context.height / 2.1,
-          width: context.width,
-          // height: MediaQuery.of(context).size.height / 2.1,
-          // width: MediaQuery.of(context).size.width,
+        appBar: AppBar(
+          title: const Text('Widget Extension'),
         ),
+        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          //? ============== Widget Extension ==================//
 
-        //! 2- push Navigator
-        // ElevatedButton(
-        //     onPressed: () =>
-        //     context.push(const Page2()),
-        //     //  Navigator.of(context)
-        //     // .push(MaterialPageRoute(builder: (context) => const Page2())),
-        //     child: const Text('Navigator')),
+          //! 1- onTap
+          const Card(
+            color: Colors.blue,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('test onTap widget'),
+            ),
+          ).onTap(() {
+            log('user pressed');
+          }),
 
-        //! 3- textTheme
-        // Text(
-        //   'text Theme',
-        //   style:
-        //   context.textTheme.headline6
-        // // Theme.of(context).textTheme.headline6,
-        // ),
+          //! 2- center
+          const Text(
+            'test center widget',
+            style: TextStyle(fontSize: 22),
+          ).center(),
 
-        //! 4- isDarkMode
-        ElevatedButton(
-            onPressed: () => log(context.isDarkMode.toString()),
-            child: const Text('isDarkMode')),
-      ]).center(),
-    );
+          //! 3- expand
+          Container(
+                  color: Colors.red,
+                  height: 200,
+                  width: 500,
+                  child: const FlutterLogo())
+              .expand(),
+
+          //! 4-  paddingAll -paddingOny paddingleft -paddingRight -paddingTop -paddingBottm
+          ElevatedButton(
+            child: const Text('test Padding widget'),
+            onPressed: () {},
+          )
+          .paddingTop(50),
+
+          //! 5- SizedBox height - width
+          ElevatedButton(
+            child: const Text('test sizedBox widget'),
+            onPressed: () {},
+          ).withHeight(200),
+
+          // //! 6- visible
+          ElevatedButton(
+            child: const Text('test visible widget'),
+            onPressed: () {},
+          ).visible(  true, ).center()
+        ]));
   }
-}
-
-class Page2 extends StatelessWidget {
-  const Page2({super.key});
-
-  @override
-  Widget build(BuildContext context) => const Scaffold(
-        backgroundColor: Colors.brown,
-        body: Center(
-          child: Text(
-            'Page2',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
 }
