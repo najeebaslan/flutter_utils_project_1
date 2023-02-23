@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_utils_project/flutter_utils_project.dart';
 
@@ -13,7 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Utils Project',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -32,6 +31,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final _controller = TextEditingController();
+  final String _key = 'username';
+  String text = 'no value';
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +40,36 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 50),
           child: Column(children: [
+            Text(
+              text,
+              style: const TextStyle(color: Colors.red, fontSize: 22),
+            ),
             10.height,
             buildTextField(),
             60.height,
             //! Set Value
             customBotton(
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    log('message');
-                  }
+                  await FuSharedPreferences.setString(_key, _controller.text);
                 },
-                text: 'validate'),
+                text: 'Set value'),
+            //! Get Value
+            customBotton(
+                onPressed: () async {
+                  String? value = await FuSharedPreferences.getString(
+                    _key,
+                  );
+                  setState(() => text = value ?? 'no value');
+                },
+                text: 'Get value'),
+            //! Delete Value
+            customBotton(
+                onPressed: () async {
+                  await FuSharedPreferences.deleteString(
+                    _key,
+                  );
+                },
+                text: 'Delete value'),
           ])),
     );
   }
@@ -94,16 +114,44 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget customBotton(
       {required void Function() onPressed, required String text}) {
-    return FuButton.rounded(
-        block: true,
-        borderRadiusAll: 30,
-        padding: const EdgeInsets.all(15),
-        onPressed: onPressed,
-        backgroundColor: const Color(0xFF434CF4),
-        child: FuText.button(
-          fontSize: 20,
-          text,
-          color: Colors.white,
-        )).paddingSymmetric(horizontal: 20, vertical: 10);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+            ),
+            child: ElevatedButton(
+              onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF434CF4),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30))),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          )),
+        ],
+      ),
+    );
+
+    // FuButton.rounded(
+    //     block: true,
+    //     borderRadiusAll: 30,
+    //     padding: const EdgeInsets.all(15),
+    //     onPressed: onPressed,
+    //     backgroundColor: const Color(0xFF434CF4),
+    //     child: FuText.button(
+    //       fontSize: 20,
+    //       text,
+    //       color: Colors.white,
+    //     )).paddingSymmetric(horizontal: 20, vertical: 10);
   }
 }
