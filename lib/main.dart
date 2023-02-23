@@ -18,66 +18,94 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const WidgetEx(),
+      home: const StringEx(),
     );
   }
 }
 
-class WidgetEx extends StatelessWidget {
-  const WidgetEx({super.key});
+class StringEx extends StatelessWidget {
+  const StringEx({super.key});
+  static String? text;
+
+  static String email = 'najeebaslan@gmail.com';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Widget Extension'),
-        ),
-        body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          //? ============== Widget Extension ==================//
+      appBar: AppBar(
+        title: const Text('String Extension'),
+      ),
+      backgroundColor: const Color(0xFFF5F6FA),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          //? ==============String Extension==================//
 
-          //! 1- onTap
-          const Card(
-            color: Colors.blue,
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('test onTap widget'),
-            ),
-          ).onTap(() {
-            log('user pressed');
-          }),
-
-          //! 2- center
-          const Text(
-            'test center widget',
-            style: TextStyle(fontSize: 22),
-          ).center(),
-
-          //! 3- expand
-          Container(
-                  color: Colors.red,
-                  height: 200,
-                  width: 500,
-                  child: const FlutterLogo())
-              .expand(),
-
-          //! 4-  paddingAll -paddingOny paddingleft -paddingRight -paddingTop -paddingBottm
+          //! 1- validateEmail
           ElevatedButton(
-            child: const Text('test Padding widget'),
-            onPressed: () {},
-          )
-          .paddingTop(50),
+              onPressed: () {
+                if (email.validateEmail()) {
+                  snackBar(' email is valid', context);
+                } else {
+                  snackBar(' email is not valid', context);
+                }
+              },
+              child: const Text('validateEmail')),
 
-          //! 5- SizedBox height - width
-          ElevatedButton(
-            child: const Text('test sizedBox widget'),
-            onPressed: () {},
-          ).withHeight(200),
+          //! 2- validate
+          Text(
+            text.validate(),
+            style: _style,
+          ),
 
-          // //! 6- visible
+          //! 3- isImage  - isAudio - isTxt  -isApk
           ElevatedButton(
-            child: const Text('test visible widget'),
-            onPressed: () {},
-          ).visible(  true, ).center()
-        ]));
+              onPressed: () {
+                if ('image.jpg'.isImage) {
+                  snackBar(' isImage is valid', context);
+                } else {
+                  snackBar(' isImage is not valid', context);
+                }
+              },
+              child: const Text('isImage')),
+
+          //! 4- capitalizeFirstLetter
+          Text(
+            'capitalize First Letter'.capitalizeFirstLetter(),
+            style: _style,
+          ),
+
+          //! 5-  replaceFarsiNumber
+          Text(
+            ''.replaceFarsiNumber('12345678'),
+            style: _style,
+          ),
+
+          //! 6- formatNumberWithComma
+          Text(
+            '1234567891101112'.formatNumberWithComma(),
+            style: _style,
+          ),
+
+          //! 7- removeAllWhiteSpace
+          Text(
+            'remove All White Space'.removeAllWhiteSpace(),
+            style: _style,
+          ),
+
+          //! 8- countWords
+          Text(
+            'Count Words is ${'count Words '.countWords()}',
+            style: _style,
+          ),
+        ]),
+      ),
+    );
+  }
+
+  final TextStyle _style = const TextStyle(fontSize: 22, height: 1.5);
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> snackBar(
+      String message, BuildContext context) {
+    return ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 }
